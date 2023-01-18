@@ -11,6 +11,8 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var pingButton: UIButton!
+    
     @IBOutlet weak var textInput: UITextField!
     
     @IBOutlet weak var sendButton: UIButton!
@@ -27,6 +29,39 @@ class ViewController: UIViewController {
            super.viewDidLoad()
            // add trigger when button touched call function buttonTapped
            sendButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        
+           pingButton.addTarget(self, action:#selector(ping) , for: .touchUpInside)
+    }
+    
+    @objc func ping() {
+        
+        guard let urltoping = URL(string: "http://localhost:8080/image") else {
+            return
+        }
+        
+        print(urltoping)
+        
+        let jsonObj: [String:Any]=["text":"some text sequence"]
+        let jsonData = try? JSONSerialization.data(withJSONObject: jsonObj)
+        
+        var request = URLRequest(url: urltoping)
+        request.httpMethod = "POST"
+        request.httpBody = jsonData
+        
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data, error == nil else {
+                print(error)
+                return
+            }
+            let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+            if let responseJSON = responseJSON as? [String: Any] {
+                print(responseJSON)
+            }
+        }
+        task.resume()
     }
     
     // function that extracts text input given by user

@@ -38,6 +38,12 @@
                                 <rect key="frame" x="198" y="233" width="196" height="161"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oh3-Ec-N9b">
+                                <rect key="frame" x="129" y="461" width="116" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="linkColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Ping node server"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -46,6 +52,7 @@
                     <connections>
                         <outlet property="firstImage" destination="eX9-Ri-WQI" id="1dl-x2-uLh"/>
                         <outlet property="lastImage" destination="XpG-vV-4sB" id="XuC-Aw-Vxw"/>
+                        <outlet property="pingButton" destination="oh3-Ec-N9b" id="hHm-Gs-kVG"/>
                         <outlet property="sendButton" destination="s8m-KO-iTZ" id="yQT-RH-AI4"/>
                         <outlet property="textInput" destination="9b4-EX-HK1" id="752-UY-6Ge"/>
                     </connections>
