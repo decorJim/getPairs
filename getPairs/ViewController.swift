@@ -55,23 +55,22 @@ class ViewController: UIViewController {
        // Retrieve the image data for each asset
         
        // iterate through the assets in the assets variable
-       assets.enumerateObjects { (asset, _, _) in
-       let manager = PHImageManager.default()
-       let options = PHImageRequestOptions()
-       options.isSynchronous = true
-        
        // For each asset, the code creates a new PHImageManager object, which is used to retrieve the image data for the asset. The PHImageManager is a class that provides methods to request image and video data for assets.
-       manager.requestImageData(for: asset, options: options) { (imageData, _, _, _) in
-              if let data = imageData {
-                   if let image = UIImage(data: data) {
-                       images.append(image)
-                   }
+       assets.enumerateObjects { (asset, _, _) in
+           let manager = PHImageManager.default()
+           let options = PHImageRequestOptions()
+           options.isSynchronous = true
+           // imageData: an optional Data object containing the image data, or nil if the request failed.
+           // sequence of bytes that represents the image.
+           manager.requestImageData(for: asset, options: options) { (imageData, _, _, _) in
+                if let data = imageData {
+                     if let image = UIImage(data: data) {
+                         images.append(image)
+                     }
+                }
               }
-           }
         }
         
-        // imageData: an optional Data object containing the image data, or nil if the request failed.
-        // sequence of bytes that represents the image.
         
         print(images)
         
