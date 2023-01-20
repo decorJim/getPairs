@@ -35,6 +35,78 @@ class ViewController: UIViewController {
     
     @objc func ping() {
         
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        // ARRAY OF ASSET
+        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+    
+        guard let lastAsset = fetchResult.firstObject else {
+            print("No recent images found.")
+            return
+        }
+        
+        let manager = PHImageManager()
+        let options = PHImageRequestOptions()
+        
+        options.isSynchronous = true
+        
+        var lastImage = UIImage()
+        
+        manager.requestImageData(for: lastAsset, options: options) { (imageData, dataUTI, orientation, info) in
+                   if let data = imageData {
+                        if let image = UIImage(data: data) {
+                           lastImage = image
+                        }
+                   }
+        }
+    
+        var id="2di29j3fdi"
+        
+        guard let urltoping = URL(string: "http://localhost:8080/image") else {
+            return
+        }
+        var request = URLRequest(url: urltoping)
+        let boundary = "Boundary-\(UUID().uuidString)"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        
+        var data = Data()
+        
+        if let imageData = lastImage.jpegData(compressionQuality: 1.0) {
+            data.append("--\(boundary)\r\n".data(using: .utf8)!)
+            data.append("Content-Disposition: form-data; name=\"image\"\r\n\r\n".data(using: .utf8)!)
+            //data.append("Content-Type: image/jpg\r\n\r\n".data(using: .utf8)!)
+            data.append(imageData.base64EncodedData())
+            data.append("\r\n".data(using: .utf8)!)
+        }
+        
+        let jsonObj: [String:Any]=["text":"some text sequence"]
+        
+        let jsonData = try! JSONSerialization.data(withJSONObject: jsonObj, options: [])
+        
+        data.append("--\(boundary)\r\n".data(using: .utf8)!)
+        data.append("Content-Disposition: form-data; name=\"data\"\r\n".data(using: .utf8)!)
+        data.append("Content-Type: application/json\r\n\r\n".data(using: .utf8)!)
+        data.append(jsonData)
+        data.append("\r\n".data(using: .utf8)!)
+        data.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = data
+        let task = URLSession.shared.dataTask(with: request) { (data,response,error) in
+            guard let data = data, error == nil else {
+                print(error)
+                return
+            }
+            let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+            if let responseJSON = responseJSON as? [String: Any] {
+                print("RESPONSE HTTP")
+                print(responseJSON)
+            }
+        }
+        task.resume()
+        
+        /*
         guard let urltoping = URL(string: "http://localhost:8080/image") else {
             return
         }
@@ -62,6 +134,7 @@ class ViewController: UIViewController {
             }
         }
         task.resume()
+        */
     }
     
     // function that extracts text input given by user
@@ -137,7 +210,7 @@ class ViewController: UIViewController {
         var data = Data()
         
         for (index,image) in images.enumerated() {
-            if let imageData = image.jpegData(compressionQuality: 0.5) {
+            if let imageData = image.jpegData(compressionQuality: 1.0) {
                 data.append("--\(boundary)\r\n".data(using: .utf8)!)
                 data.append("Content-Disposition: form-data; name=\"image\(index)\"\r\n\r\n".data(using: .utf8)!)
                 data.append(imageData.base64EncodedData()) // data is encoded in base64
@@ -146,7 +219,6 @@ class ViewController: UIViewController {
         }
         data.append("--\(boundary)--\r\n".data(using: .utf8)!)
         request.httpBody = data
-        print(request.httpBody)
                 
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             // handle response and error
