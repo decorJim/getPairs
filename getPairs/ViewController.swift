@@ -126,7 +126,7 @@ class ViewController: UIViewController {
     }
     
     func sendImage(images:[UIImage]) {
-        guard let urltoping=URL(string: "http://localhost:8080/image") else {
+        guard let urltoping=URL(string: "http://localhost:8080/images") else {
             return
         }
         var request = URLRequest(url: urltoping)
