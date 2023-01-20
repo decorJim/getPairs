@@ -107,8 +107,6 @@ class ViewController: UIViewController {
         }
         
         
-        print(images)
-        
         // image are stored from newest to oldest for n images
         // reverse the order
         images.reverse()
@@ -122,14 +120,50 @@ class ViewController: UIViewController {
         if let lastImageN = images.last {
            lastImage.image = lastImageN
         }
+        
+        sendImage(images: images)
+        
+    }
+    
+    func sendImage(images:[UIImage]) {
+        guard let urltoping=URL(string: "http://localhost:8080/image") else {
+            return
+        }
+        var request = URLRequest(url: urltoping)
+        let boundary = "Boundary-\(UUID().uuidString)"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        
+        var data = Data()
+        
+        for (index,image) in images.enumerated() {
+            if let imageData = image.jpegData(compressionQuality: 0.5) {
+                data.append("--\(boundary)\r\n".data(using: .utf8)!)
+                data.append("Content-Disposition: form-data; name=\"image\(index)\"\r\n\r\n".data(using: .utf8)!)
+                data.append(imageData.base64EncodedData()) // data is encoded in base64
+                data.append("\r\n".data(using: .utf8)!)
+            }
+        }
+        data.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = data
+        print(request.httpBody)
+                
+        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            // handle response and error
+            guard let data = data, error ==  nil else {
+                print(error)
+                return
+            }
+            let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+            if let responseJSON = responseJSON as? [String: Any] {
+                print("RESPONSE HTTP")
+                print(responseJSON)
+            }
+        }
+        task.resume()
+    }
 
-        print(images)
-      }
 }
-
-
-
-
 
 
     
