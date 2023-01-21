@@ -12,24 +12,19 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var pingButton: UIButton!
-    
     @IBOutlet weak var textInput: UITextField!
-    
     @IBOutlet weak var sendButton: UIButton!
-    
     @IBOutlet weak var collectionView: UICollectionView!
     
-    
-    
     @IBOutlet weak var firstImage: UIImageView!
-    
     @IBOutlet weak var lastImage: UIImageView!
+
     
     override func viewDidLoad() {
            super.viewDidLoad()
+
            // add trigger when button touched call function buttonTapped
            sendButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        
            pingButton.addTarget(self, action:#selector(ping) , for: .touchUpInside)
     }
     
@@ -194,32 +189,41 @@ class ViewController: UIViewController {
            lastImage.image = lastImageN
         }
         
-        sendImage(images: images)
+        sendImage(images: images,n: n)
         
     }
     
-    func sendImage(images:[UIImage]) {
-        guard let urltoping=URL(string: "http://localhost:8080/images") else {
+    func sendImage(images:[UIImage],n: Int) {
+        for (index, image) in images.enumerated() {
+        guard let url = URL(string: "http://localhost:8080/images") else {
             return
         }
-        var request = URLRequest(url: urltoping)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
         let boundary = "Boundary-\(UUID().uuidString)"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "POST"
         
         var data = Data()
-        
-        for (index,image) in images.enumerated() {
-            if let imageData = image.jpegData(compressionQuality: 1.0) {
-                data.append("--\(boundary)\r\n".data(using: .utf8)!)
-                data.append("Content-Disposition: form-data; name=\"image\(index)\"\r\n\r\n".data(using: .utf8)!)
-                data.append(imageData.base64EncodedData()) // data is encoded in base64
-                data.append("\r\n".data(using: .utf8)!)
-            }
+        if let imageData = image.jpegData(compressionQuality: 1.0) {
+            data.append("--\(boundary)\r\n".data(using: .utf8)!)
+            data.append("Content-Disposition: form-data; name=\"image\"\r\n\r\n".data(using: .utf8)!)
+            data.append(imageData.base64EncodedData())
+            data.append("\r\n".data(using: .utf8)!)
         }
+            
+        let jsonObj: [String:Any]=["limit": String(n)]
+        
+        let jsonData = try! JSONSerialization.data(withJSONObject: jsonObj, options: [])
+        
+        data.append("--\(boundary)\r\n".data(using: .utf8)!)
+        data.append("Content-Disposition: form-data; name=\"data\"\r\n".data(using: .utf8)!)
+        data.append("Content-Type: application/json\r\n\r\n".data(using: .utf8)!)
+        data.append(jsonData)
+        data.append("\r\n".data(using: .utf8)!)
         data.append("--\(boundary)--\r\n".data(using: .utf8)!)
+            
         request.httpBody = data
-                
+        
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             // handle response and error
             guard let data = data, error ==  nil else {
@@ -233,6 +237,8 @@ class ViewController: UIViewController {
             }
         }
         task.resume()
+      }
+            
     }
 
 }
