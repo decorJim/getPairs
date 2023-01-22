@@ -150,7 +150,24 @@ class ViewController: UIViewController {
     }
     
     @objc func deleteImages() {
-        
+        guard let url = URL(string: "http://localhost:8080/delete") else {
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            // handle response and error
+            guard let data = data, error == nil else {
+                print(error)
+                return
+            }
+            let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+            if let responseJSON = responseJSON as? [String: Any] {
+                print("RESPONSE HTTP")
+                print(responseJSON)
+            }
+        }
+        task.resume()
     }
     
     func retrieveRecentPhotos(n: Int) {
@@ -246,6 +263,14 @@ class ViewController: UIViewController {
             if let responseJSON = responseJSON as? [String: Any] {
                 print("RESPONSE HTTP")
                 print(responseJSON)
+                if(responseJSON["msg"] as? Int == n) {
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: "Title", message: "all images uploaded !", preferredStyle: .alert)
+                        let action = UIAlertAction(title: "OK", style: .default)
+                        alert.addAction(action)
+                        self.present(alert, animated: true)
+                    }
+                }
             }
         }
         task.resume()
