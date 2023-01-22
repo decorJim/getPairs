@@ -249,7 +249,7 @@ class ViewController: UIViewController {
             }
         }
         task.resume()
-        Thread.sleep(forTimeInterval: 0.05)
+        Thread.sleep(forTimeInterval: 0.5)
       }
       
     }
