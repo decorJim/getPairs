@@ -20,7 +20,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var lastImage: UIImageView!
     @IBOutlet weak var resultButton: UIButton!
     @IBOutlet weak var deleteImagesButton: UIButton!
-    
+   var baseurl: String = "https://serverimage.onrender.com/" //"http://localhost:8080/"
     
     override func viewDidLoad() {
            super.viewDidLoad()
@@ -65,7 +65,7 @@ class ViewController: UIViewController {
     
         var id="2di29j3fdi"
         
-        guard let urltoping = URL(string: "http://localhost:8080/image") else {
+        guard let urltoping = URL(string: baseurl+"image") else {
             return
         }
         var request = URLRequest(url: urltoping)
@@ -121,7 +121,7 @@ class ViewController: UIViewController {
     
     @objc func getResults() {
             // Make a GET request to the server to get the array of images
-            let url = URL(string: "http://localhost:8080/results")!
+            let url = URL(string: baseurl+"results")!
             let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
                 if let error = error {
                     print(error)
@@ -150,7 +150,7 @@ class ViewController: UIViewController {
     }
     
     @objc func deleteImages() {
-        guard let url = URL(string: "http://localhost:8080/delete") else {
+        guard let url = URL(string: baseurl+"delete") else {
             return
         }
         var request = URLRequest(url: url)
@@ -165,6 +165,14 @@ class ViewController: UIViewController {
             if let responseJSON = responseJSON as? [String: Any] {
                 print("RESPONSE HTTP")
                 print(responseJSON)
+                if(responseJSON["msg"] as? String == "deleted sucess !") {
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: "Title", message: "all images images deleted !", preferredStyle: .alert)
+                        let action = UIAlertAction(title: "OK", style: .default)
+                        alert.addAction(action)
+                        self.present(alert, animated: true)
+                    }
+                }
             }
         }
         task.resume()
@@ -224,7 +232,7 @@ class ViewController: UIViewController {
     
     func sendImage(images:[UIImage],n: Int) {
         for (index, image) in images.enumerated() {
-        guard let url = URL(string: "http://localhost:8080/images") else {
+        guard let url = URL(string: baseurl+"images") else {
             return
         }
         var request = URLRequest(url: url)
