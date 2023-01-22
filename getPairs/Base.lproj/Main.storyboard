@@ -39,10 +39,24 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oh3-Ec-N9b">
-                                <rect key="frame" x="129" y="461" width="116" height="30"/>
+                                <rect key="frame" x="129" y="542" width="116" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="linkColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Ping node server"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RsN-0p-V59">
+                                <rect key="frame" x="150" y="420" width="75" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Get results">
+                                    <color key="titleShadowColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CHH-Ds-5LQ">
+                                <rect key="frame" x="138" y="479" width="98" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemOrangeColor" red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Delete images"/>
                             </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -50,9 +64,11 @@
                     </view>
                     <navigationItem key="navigationItem" title="Photos" id="Oi9-Iz-RJ2"/>
                     <connections>
+                        <outlet property="deleteImagesButton" destination="CHH-Ds-5LQ" id="Mij-ZQ-Yka"/>
                         <outlet property="firstImage" destination="eX9-Ri-WQI" id="1dl-x2-uLh"/>
                         <outlet property="lastImage" destination="XpG-vV-4sB" id="XuC-Aw-Vxw"/>
                         <outlet property="pingButton" destination="oh3-Ec-N9b" id="hHm-Gs-kVG"/>
+                        <outlet property="resultButton" destination="RsN-0p-V59" id="4y0-11-2f4"/>
                         <outlet property="sendButton" destination="s8m-KO-iTZ" id="yQT-RH-AI4"/>
                         <outlet property="textInput" destination="9b4-EX-HK1" id="752-UY-6Ge"/>
                     </connections>

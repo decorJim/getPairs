@@ -18,7 +18,9 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var firstImage: UIImageView!
     @IBOutlet weak var lastImage: UIImageView!
-
+    @IBOutlet weak var resultButton: UIButton!
+    @IBOutlet weak var deleteImagesButton: UIButton!
+    
     
     override func viewDidLoad() {
            super.viewDidLoad()
@@ -26,6 +28,11 @@ class ViewController: UIViewController {
            // add trigger when button touched call function buttonTapped
            sendButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
            pingButton.addTarget(self, action:#selector(ping) , for: .touchUpInside)
+        
+           resultButton.addTarget(self, action: #selector(getResults) , for: .touchUpInside)
+        
+           deleteImagesButton.addTarget(self, action: #selector(deleteImages), for: .touchUpInside)
+        
     }
     
     @objc func ping() {
@@ -101,35 +108,6 @@ class ViewController: UIViewController {
         }
         task.resume()
         
-        /*
-        guard let urltoping = URL(string: "http://localhost:8080/image") else {
-            return
-        }
-        
-        print(urltoping)
-        
-        let jsonObj: [String:Any]=["text":"some text sequence"]
-        let jsonData = try? JSONSerialization.data(withJSONObject: jsonObj)
-        
-        var request = URLRequest(url: urltoping)
-        request.httpMethod = "POST"
-        request.httpBody = jsonData
-        
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data, error == nil else {
-                print(error)
-                return
-            }
-            let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
-            if let responseJSON = responseJSON as? [String: Any] {
-                print(responseJSON)
-            }
-        }
-        task.resume()
-        */
     }
     
     // function that extracts text input given by user
@@ -139,6 +117,40 @@ class ViewController: UIViewController {
                 return
             }
             retrieveRecentPhotos(n: n)
+    }
+    
+    @objc func getResults() {
+            // Make a GET request to the server to get the array of images
+            let url = URL(string: "http://localhost:8080/results")!
+            let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+                if let error = error {
+                    print(error)
+                    return
+                }
+                guard let data = data else {
+                    print("No data received")
+                    return
+                }
+                do {
+                    // Decode the received data as an array of images
+                    let images = try JSONDecoder().decode([String].self, from: data)
+                    for image in images {
+                        // Decode the image data
+                        let imageData = Data(base64Encoded: image, options: .ignoreUnknownCharacters)!
+                        // Create a UIImage from the decoded data
+                        let uiImage = UIImage(data: imageData)
+                        // Save the image to the Photos app
+                        UIImageWriteToSavedPhotosAlbum(uiImage!, nil, nil, nil)
+                    }
+                } catch {
+                    print(error)
+                }
+            }
+            task.resume()
+    }
+    
+    @objc func deleteImages() {
+        
     }
     
     func retrieveRecentPhotos(n: Int) {
@@ -237,9 +249,11 @@ class ViewController: UIViewController {
             }
         }
         task.resume()
+        Thread.sleep(forTimeInterval: 0.05)
       }
-            
+      
     }
+    
 
 }
 
