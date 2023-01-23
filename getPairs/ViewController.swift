@@ -20,7 +20,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var lastImage: UIImageView!
     @IBOutlet weak var resultButton: UIButton!
     @IBOutlet weak var deleteImagesButton: UIButton!
-   var baseurl: String = "https://serverimage.onrender.com/" //"http://localhost:8080/"
+   var baseurl: String = "http://localhost:8080/" //"https://serverimage.onrender.com/"
     
     override func viewDidLoad() {
            super.viewDidLoad()
@@ -248,7 +248,7 @@ class ViewController: UIViewController {
             data.append("\r\n".data(using: .utf8)!)
         }
             
-        let jsonObj: [String:Any]=["limit": String(n)]
+            let jsonObj: [String:Any]=["limit": String(n),"i":String(index)]
         
         let jsonData = try! JSONSerialization.data(withJSONObject: jsonObj, options: [])
         
