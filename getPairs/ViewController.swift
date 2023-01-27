@@ -152,7 +152,6 @@ class ViewController: UIViewController {
         task.resume()
     }
     
-    
     func retrieveRecentPhotos(n: Int) {
         // Fetch options to retrieve the n most recent photos
         let fetchOptions = PHFetchOptions()
@@ -163,50 +162,114 @@ class ViewController: UIViewController {
 
         // Photos Framework to retrieve a collection of assets (i.e., images) from the user's photo library.
         let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-
+    
         var i = 0
         while i < assets.count {
-            let asset1 = assets.object(at: i)
-            let manager = PHImageManager.default()
-            let options = PHImageRequestOptions()
-            options.isSynchronous = false
-            var firstImage: UIImage?
-            manager.requestImage(for: asset1, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { (image, _) in
-                firstImage = image
-                self.processNextPair(i, assets, firstImage)
-            }
+            self.processNextPair(i, assets)
             i += 2
         }
     }
     
-    func processNextPair(_ i: Int, _ assets: PHFetchResult<PHAsset>, _ firstImage: UIImage?) {
+    func processNextPair(_ i: Int, _ assets: PHFetchResult<PHAsset>) {
         if i >= assets.count {
             return
         }
-        let asset2 = assets.object(at: i+1)
+        let asset1 = assets.object(at: i)
         let manager = PHImageManager.default()
         let options = PHImageRequestOptions()
         options.isSynchronous = false
-        manager.requestImage(for: asset2, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { (image, _) in
-            if  let secondImage = image {
-                let newImageSize = CGSize(width: firstImage!.size.width + secondImage.size.width, height: max(firstImage!.size.height, secondImage.size.height))
-                UIGraphicsBeginImageContextWithOptions(newImageSize, false, 0.0)
-                let firstImageRect = CGRect(x: 0, y: 0, width: firstImage!.size.width, height: firstImage!.size.height)
-                firstImage!.draw(in: firstImageRect)
-                let secondImageRect = CGRect(x: firstImage!.size.width, y: 0, width: secondImage.size.width, height: secondImage.size.height)
-                secondImage.draw(in: secondImageRect)
-                let symmetricImage = UIGraphicsGetImageFromCurrentImageContext()
-                UIGraphicsEndImageContext()
-                UIImageWriteToSavedPhotosAlbum(symmetricImage!, nil, nil, nil)
-                // Instead of using Thread.sleep, you can use a completion block
-                // to indicate when the current iteration of the loop is finished
-                // and the app can continue execution
-                self.loopCompleted(image: symmetricImage!)
+        
+        manager.requestImageData(for: asset1, options: options) { (data, _, _, _) in
+            if let imageData = data {
+                let firstImage = UIImage(data: imageData)
+                let asset2 = assets.object(at: i+1)
+                let manager = PHImageManager.default()
+                let options = PHImageRequestOptions()
+                options.isSynchronous = false
+                manager.requestImageData(for: asset2, options: options) { (data, _, _, _) in
+                    if let secondImageData = data {
+                        let secondImage = UIImage(data: secondImageData)
+                        let newImageSize = CGSize(width: firstImage!.size.width + secondImage!.size.width, height: max(firstImage!.size.height, secondImage!.size.height))
+                        UIGraphicsBeginImageContextWithOptions(newImageSize, false, 0.0)
+                        let firstImageRect = CGRect(x: 0, y: 0, width: firstImage!.size.width, height: firstImage!.size.height)
+                        firstImage!.draw(in: firstImageRect)
+                        let secondImageRect = CGRect(x: firstImage!.size.width, y: 0, width: secondImage!.size.width, height: secondImage!.size.height)
+                        secondImage!.draw(in: secondImageRect)
+                        let symmetricImage = UIGraphicsGetImageFromCurrentImageContext()
+                        UIGraphicsEndImageContext()
+                        if let unwrappedSymmetricImage = symmetricImage {
+                            UIImageWriteToSavedPhotosAlbum(unwrappedSymmetricImage, nil, nil, nil)
+                        }
+                    }
+                }
             }
         }
     }
+                           
 
+    
+    /*
+    func retrieveRecentPhotos(n: Int) {
+        // Fetch options to retrieve the n most recent photos
+        let fetchOptions = PHFetchOptions()
 
+        // Defines in what order to fetch all photos
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.fetchLimit = n
+
+        // Photos Framework to retrieve a collection of assets (i.e., images) from the user's photo library.
+        let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+    
+        var i = 0
+        while i < assets.count {
+            self.processNextPair(i, assets)
+            i += 2
+        }
+    }
+    
+    func processNextPair(_ i: Int, _ assets: PHFetchResult<PHAsset>) {
+        if i >= assets.count {
+            return
+        }
+        let asset1 = assets.object(at: i)
+        let manager = PHImageManager.default()
+        let options = PHImageRequestOptions()
+        options.isSynchronous = false
+        
+        manager.requestImage(for: asset1, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { (image, _) in
+            if let firstImage = image {
+    
+              let asset2 = assets.object(at: i+1)
+              let manager = PHImageManager.default()
+              let options = PHImageRequestOptions()
+                   options.isSynchronous = false
+                   manager.requestImage(for: asset2, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { (image, _) in
+                       if  let secondImage = image {
+                        let newImageSize = CGSize(width: firstImage.size.width + secondImage.size.width, height: max(firstImage.size.height, secondImage.size.height))
+                           UIGraphicsBeginImageContextWithOptions(newImageSize, false, 0.0)
+                        let firstImageRect = CGRect(x: 0, y: 0, width: firstImage.size.width, height: firstImage.size.height)
+                        firstImage.draw(in: firstImageRect)
+                        let secondImageRect = CGRect(x: firstImage.size.width, y: 0, width: secondImage.size.width, height: secondImage.size.height)
+                           secondImage.draw(in: secondImageRect)
+                           let symmetricImage = UIGraphicsGetImageFromCurrentImageContext()
+                           UIGraphicsEndImageContext()
+                           if let unwrappedSymmetricImage = symmetricImage {
+                               UIImageWriteToSavedPhotosAlbum(unwrappedSymmetricImage, nil, nil, nil)
+                           }
+                           
+                           // Instead of using Thread.sleep, you can use a completion block
+                           // to indicate when the current iteration of the loop is finished
+                           // and the app can continue execution
+                           self.loopCompleted(image: symmetricImage!)
+                       }
+                   }
+            
+           }
+        }
+       
+    }
+
+*/
     
     
     /*
