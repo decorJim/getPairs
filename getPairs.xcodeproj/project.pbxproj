@@ -14,6 +14,7 @@
 		FECCEA6A297711D100CB1CDC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FECCEA68297711D100CB1CDC /* Main.storyboard */; };
 		FECCEA6C297711D300CB1CDC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FECCEA6B297711D300CB1CDC /* Assets.xcassets */; };
 		FECCEA6F297711D300CB1CDC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FECCEA6D297711D300CB1CDC /* LaunchScreen.storyboard */; };
+		FED92CB3298371990037ADA6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FED92CB2298371990037ADA6 /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		FECCEA6B297711D300CB1CDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FECCEA6E297711D300CB1CDC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FECCEA70297711D300CB1CDC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FED92CB2298371990037ADA6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FED92CB3298371990037ADA6 /* CoreGraphics.framework in Frameworks */,
 				FE1C68D42977C3BE0004051B /* ExternalAccessory.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -44,6 +47,7 @@
 		FE1C68D22977C3BE0004051B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FED92CB2298371990037ADA6 /* CoreGraphics.framework */,
 				FE1C68D32977C3BE0004051B /* ExternalAccessory.framework */,
 			);
 			name = Frameworks;

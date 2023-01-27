@@ -36,78 +36,52 @@ class ViewController: UIViewController {
     }
     
     @objc func ping() {
+        guard let text = textInput.text, let n = Int(text) else {
+                      // Show an error message or return
+                      return
+                  }
         
         let fetchOptions = PHFetchOptions()
+
+        // Defines in what order to fetch all photos
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.fetchLimit = n
+
+        // Photos Framework to retrieve a collection of assets (i.e., images) from the user's photo library.
+        let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        var images = [UIImage]()
         
-        // ARRAY OF ASSET
-        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-    
-        guard let lastAsset = fetchResult.firstObject else {
-            print("No recent images found.")
-            return
-        }
-        
-        let manager = PHImageManager()
-        let options = PHImageRequestOptions()
-        
-        options.isSynchronous = true
-        
-        var lastImage = UIImage()
-        
-        manager.requestImageData(for: lastAsset, options: options) { (imageData, dataUTI, orientation, info) in
-                   if let data = imageData {
-                        if let image = UIImage(data: data) {
-                           lastImage = image
-                        }
-                   }
-        }
-    
-        var id="2di29j3fdi"
-        
-        guard let urltoping = URL(string: baseurl+"image") else {
-            return
-        }
-        var request = URLRequest(url: urltoping)
-        let boundary = "Boundary-\(UUID().uuidString)"
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "POST"
-        
-        var data = Data()
-        
-        if let imageData = lastImage.jpegData(compressionQuality: 1.0) {
-            data.append("--\(boundary)\r\n".data(using: .utf8)!)
-            data.append("Content-Disposition: form-data; name=\"image\"\r\n\r\n".data(using: .utf8)!)
-            //data.append("Content-Type: image/jpg\r\n\r\n".data(using: .utf8)!)
-            data.append(imageData.base64EncodedData())
-            data.append("\r\n".data(using: .utf8)!)
-        }
-        
-        let jsonObj: [String:Any]=["text":"some text sequence"]
-        
-        let jsonData = try! JSONSerialization.data(withJSONObject: jsonObj, options: [])
-        
-        data.append("--\(boundary)\r\n".data(using: .utf8)!)
-        data.append("Content-Disposition: form-data; name=\"data\"\r\n".data(using: .utf8)!)
-        data.append("Content-Type: application/json\r\n\r\n".data(using: .utf8)!)
-        data.append(jsonData)
-        data.append("\r\n".data(using: .utf8)!)
-        data.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        
-        request.httpBody = data
-        let task = URLSession.shared.dataTask(with: request) { (data,response,error) in
-            guard let data = data, error == nil else {
-                print(error)
-                return
+           assets.enumerateObjects { (asset, _, _) in
+               let manager = PHImageManager.default()
+               let options = PHImageRequestOptions()
+               options.isSynchronous = true
+               // imageData: an optional Data object containing the image data, or nil if the request failed.
+               // sequence of bytes that represents the image.
+               manager.requestImageData(for: asset, options: options) { (imageData, _, _, _) in
+                    if let data = imageData {
+                         if let image = UIImage(data: data) {
+                             images.append(image)
+                         }
+                    }
+                  }
             }
-            let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
-            if let responseJSON = responseJSON as? [String: Any] {
-                print("RESPONSE HTTP")
-                print(responseJSON)
-            }
-        }
-        task.resume()
+            
+            
+            // image are stored from newest to oldest for n images
+            // reverse the order
+            images.reverse()
         
+            self.sendImage(images: images, n: n)
+            
+            // display first image in subset
+            if let firstImage1 = images.first {
+                firstImage.image=firstImage1
+            }
+            
+            // display last image in subset
+            if let lastImageN = images.last {
+               lastImage.image = lastImageN
+            }
     }
     
     // function that extracts text input given by user
@@ -179,55 +153,64 @@ class ViewController: UIViewController {
     }
     
     func retrieveRecentPhotos(n: Int) {
-      // Fetch options to retrieve the n most recent photos
-       let fetchOptions = PHFetchOptions()
-        
-       // defines in what order to fetch in all photos
-       fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-       fetchOptions.fetchLimit = n
-       
-       // Photos Framework to retrieve a collection of assets (i.e., images) from the user's photo library.
-       let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+     // Fetch options to retrieve the n most recent photos
+     let fetchOptions = PHFetchOptions()
+
+     // Defines in what order to fetch all photos
+     fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+     fetchOptions.fetchLimit = n
+
+     // Photos Framework to retrieve a collection of assets (i.e., images) from the user's photo library.
+     let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+
+     var i = 0
+     while i < assets.count {
+         let asset1 = assets.object(at: i)
+         let manager = PHImageManager.default()
+         let options = PHImageRequestOptions()
+         options.isSynchronous = true
+         var firstImage: UIImage?
+         manager.requestImage(for: asset1, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { (image, _) in
+             firstImage = image
+         }
+
+         i += 1
+         if i >= assets.count {
+             break
+         }
+
+         let asset2 = assets.object(at: i)
+         var secondImage: UIImage?
+         manager.requestImage(for: asset2, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { (image, _) in
+             secondImage = image
+         }
+
+         if let firstImage = firstImage, let secondImage = secondImage {
+             let newImageSize = CGSize(width: firstImage.size.width + secondImage.size.width, height: max(firstImage.size.height, secondImage.size.height))
+             UIGraphicsBeginImageContextWithOptions(newImageSize, false, 0.0)
+             let firstImageRect = CGRect(x: 0, y: 0, width: firstImage.size.width, height: firstImage.size.height)
+             firstImage.draw(in: firstImageRect)
+             let secondImageRect = CGRect(x: firstImage.size.width, y: 0, width: secondImage.size.width, height: secondImage.size.height)
+             secondImage.draw(in: secondImageRect)
+             let symmetricImage = UIGraphicsGetImageFromCurrentImageContext()
+             UIImageWriteToSavedPhotosAlbum(symmetricImage!, nil, nil, nil)
+             UIGraphicsEndImageContext()
+             Thread.sleep(forTimeInterval: 5)
+         }
+         i += 1
+     }
+
+     // display first image in subset
+     if let firstImage1 = firstImage {
+         firstImage = firstImage1
+     }
+
+     // display last image in subset
+     if let lastImageN = lastImage {
+        lastImage = lastImageN
+     }
+
     
-      // Create an array to store the selected images
-       var images = [UIImage]()
-    
-       // Retrieve the image data for each asset
-        
-       // iterate through the assets in the assets variable
-       // For each asset, the code creates a new PHImageManager object, which is used to retrieve the image data for the asset. The PHImageManager is a class that provides methods to request image and video data for assets.
-       assets.enumerateObjects { (asset, _, _) in
-           let manager = PHImageManager.default()
-           let options = PHImageRequestOptions()
-           options.isSynchronous = true
-           // imageData: an optional Data object containing the image data, or nil if the request failed.
-           // sequence of bytes that represents the image.
-           manager.requestImageData(for: asset, options: options) { (imageData, _, _, _) in
-                if let data = imageData {
-                     if let image = UIImage(data: data) {
-                         images.append(image)
-                     }
-                }
-              }
-        }
-        
-        
-        // image are stored from newest to oldest for n images
-        // reverse the order
-        images.reverse()
-        
-        // display first image in subset
-        if let firstImage1 = images.first {
-            firstImage.image=firstImage1
-        }
-        
-        // display last image in subset
-        if let lastImageN = images.last {
-           lastImage.image = lastImageN
-        }
-        
-        sendImage(images: images,n: n)
-        
     }
     
     func sendImage(images:[UIImage],n: Int) {
