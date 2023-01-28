@@ -196,7 +196,8 @@ class ViewController: UIViewController {
                 manager.requestImageData(for: asset2, options: options) { (data, _, _, _) in
                     if let secondImageData = data {
                         let secondImage = UIImage(data: secondImageData)
-                        self.processImages(firstImage: firstImage!, secondImage: secondImage!)
+                        // swap for correct drawing
+                        self.processImages(firstImage: secondImage!, secondImage: firstImage!)
                     }
                 }
             }
